@@ -1,5 +1,22 @@
 /*
+!src/
 
+src/*
+!src/pers/
+
+src/pers/*
+!src/pers/wangzb96/
+
+src/pers/wangzb96/*
+!src/pers/wangzb96/dsalg
+!src/pers/wangzb96/util
+!src/pers/wangzb96/test
+
+src/pers/wangzb96/dsalg/*
 !src/pers/wangzb96/dsalg/tree/
-!src/pers/wangzb96/test/TestTree.java
+
+src/pers/wangzb96/util/*
 !src/pers/wangzb96/util/Util.java
+
+src/pers/wangzb96/test/*
+!src/pers/wangzb96/test/TestTree.java
