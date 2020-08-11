@@ -129,13 +129,10 @@ public class RedBlackTree<E> extends BinarySearchTree<E>{
         }
 
         // node是黑色的
-        Node<E> ret = null;
+        Node<E> ret = node;
         while(true){
             // node是根节点
-            if(isRoot(node)){
-                if(ret==null) ret = node;
-                break;
-            }
+            if(isRoot(node)) break;
 
             // node不是根节点
             var parent = (Node<E>)node.getParent();
@@ -159,7 +156,6 @@ public class RedBlackTree<E> extends BinarySearchTree<E>{
                 brother.swapColor(nearNephew);
                 brother.rotate(another(which));
                 brother = (Node<E>)node.getBrother();
-                nearNephew = (Node<E>)brother.getChild(which);
                 farNephew = (Node<E>)brother.getChild(another(which));
             }
 
@@ -168,7 +164,6 @@ public class RedBlackTree<E> extends BinarySearchTree<E>{
                 parent.swapColor(brother);
                 farNephew.setColor(BLACK);
                 parent.rotate(which);
-                if(ret==null) ret = node;
                 break;
             }
 
@@ -176,13 +171,11 @@ public class RedBlackTree<E> extends BinarySearchTree<E>{
             // node的爸爸是红色的
             if(parent.isRed()){
                 parent.swapColor(brother);
-                if(ret==null) ret = node;
                 break;
             }
 
             // node的爸爸是黑色的
             brother.setColor(RED);
-            if(ret==null) ret = node;
 
             node = parent;
         }
