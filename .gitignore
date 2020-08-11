@@ -28,7 +28,7 @@ out/
 *.iml
 
 # my
-src/
+src/*
 
 !src/pers/wangzb96/dsalg/tree/
 !src/pers/wangzb96/test/TestTree.java
