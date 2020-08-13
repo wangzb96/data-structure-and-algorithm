@@ -20,17 +20,17 @@ public class RedBlackTree<E> extends BinarySearchTree<E>{
         return node==null || node.isBlack();
     }
 
-    public static class Node<E> extends BinaryTree.Node<E>{
-        public static class Creator<E> extends BinaryTree.Node.Creator<E>{
+    public static class Node<E> extends BinarySearchTree.Node<E>{
+        public static class Creator<E> extends BinarySearchTree.Node.Creator<E>{
             @Override
-            public Node<E> newNode(E elem, BinaryTree.Node<E> parent, int which){
+            public Node<E> newNode(E elem, BinarySearchTree.Node<E> parent, boolean which){
                 return new Node<>(elem, (Node<E>)parent, which);
             }
         }
 
         private boolean color;
 
-        public Node(E elem, Node<E> parent, int which){
+        public Node(E elem, Node<E> parent, boolean which){
             super(elem, parent, which);
             color = RED;
         }
@@ -64,6 +64,12 @@ public class RedBlackTree<E> extends BinarySearchTree<E>{
         }
     }
 
+    public RedBlackTree(){
+        this(null, null);
+    }
+    public RedBlackTree(Node.Creator<E> nodeCreator){
+        this(nodeCreator, null);
+    }
     public RedBlackTree(Comparator<E> comparator){
         this(null, comparator);
     }
@@ -72,8 +78,8 @@ public class RedBlackTree<E> extends BinarySearchTree<E>{
     }
 
     @Override
-    protected void insert(BinaryTree.Node<E> btNode){
-        var node = (Node<E>)btNode;
+    protected void insert(BinarySearchTree.Node<E> bstNode){
+        var node = (Node<E>)bstNode;
 
         node.linkParent();
         while(true){
@@ -119,8 +125,8 @@ public class RedBlackTree<E> extends BinarySearchTree<E>{
     }
 
     @Override
-    protected Node<E> removeLeaf(BinaryTree.Node<E> btNode){
-        var node = (Node<E>)btNode;
+    protected Node<E> removeLeaf(BinarySearchTree.Node<E> bstNode){
+        var node = (Node<E>)bstNode;
 
         // node是红色的
         if(node.isRed()){
@@ -183,7 +189,11 @@ public class RedBlackTree<E> extends BinarySearchTree<E>{
         return ret;
     }
 
-    protected boolean validate(){
+    /**
+     * 判断红黑树是否合法
+     * @return 合法：true；不合法：false
+     */
+    public boolean validate(){
         return validateRoot() && validateRed() && validateBlack();
     }
     protected boolean validateRoot(){
@@ -195,12 +205,14 @@ public class RedBlackTree<E> extends BinarySearchTree<E>{
         while(!q.isEmpty()){
             var node = q.pollFirst();
             if(node==null) continue;
-            var children = node.getChildren();
-            if(node.isRed())
-                for(var child: children)
-                    if(child!=null && ((Node<E>)child).isRed()) return false;
-            for(var child: children)
-                q.offerLast((Node<E>)child);
+            var left = (Node<E>)node.getLeft();
+            var right = (Node<E>)node.getRight();
+            if(node.isRed()){
+                if(left!=null && left.isRed()) return false;
+                if(right!=null && right.isRed()) return false;
+            }
+            q.offerLast(left);
+            q.offerLast(right);
         }
         return true;
     }
@@ -227,10 +239,11 @@ public class RedBlackTree<E> extends BinarySearchTree<E>{
                 else if(num!=res) return false;
                 continue;
             }
-            var children = node.getChildren();
+            var left = (Node<E>)node.getLeft();
+            var right = (Node<E>)node.getRight();
             if(node.isBlack()) ++num;
-            for(var child: children)
-                q.offerLast(new Elem((Node<E>)child, num));
+            q.offerLast(new Elem(left, num));
+            q.offerLast(new Elem(right, num));
         }
         return true;
     }
