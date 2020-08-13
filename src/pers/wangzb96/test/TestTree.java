@@ -1,5 +1,6 @@
 package pers.wangzb96.test;
 
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.TreeMap;
 
@@ -10,7 +11,7 @@ import static pers.wangzb96.util.Util.*;
  * 测试树
  * @author wangzb96
  * @version 1.0
- * @date 2020年8月11日 14:57:23
+ * @date 2020年8月8日 12:00:00
  */
 public interface TestTree{
     class TestBinaryTree extends BinaryTree<Integer>{
@@ -95,7 +96,7 @@ public interface TestTree{
             for(var i=0; i<num; ++i){
                 var elem = rd.nextInt(max);
                 var prb = rd.nextDouble();
-                if(prb<prob) map.put(elem, elem);
+                if(prb<prob) map.put(elem, null);
                 else if(prb<prob1) map.remove(elem);
                 else map.get(elem);
             }
@@ -107,16 +108,30 @@ public interface TestTree{
     static void main(String[] args){
 //        new TestBinaryTree().test();
 //        new TestBinarySearchTree().test();
-        var max = 1_00_0000;
-        var num = 1_00_0000;
-        var prob = 0.5;
-        var prob1 = 0.5;
-        for(var i=0; i<10; ++i){
-            var elap = new TestRedBlackTree().test(max, num, prob, prob1,
-                                                   false, 100, false);
-            var elap1 = new TestTreeMap().test(max, num, prob, prob1);
-            println("%d | %.3f | %.3f (S)".formatted(i, elap/1000.0, elap1/1000.0));
+        var max = 10000*100;
+        var num = 10000*1;
+        var bi = num/100;
+        var bj = max/10;
+        var prob = 1;
+        var prob1 = 1;
+//        for(var i=0; i<10; ++i){
+//            var elap = new TestRedBlackTree().test(max, num, prob, prob1,
+//                                                   false, 100, false);
+//            var elap = 0.0;
+//            var elap1 = new TestTreeMap().test(max, num, prob, prob1);
+//            println("%d | %.3f | %.3f (S)".formatted(i, elap/1000.0, elap1/1000.0));
+//        }
+        var l = new ArrayList<RedBlackTree.Node<Integer>>(max);
+        var c = new RedBlackTree.Node.Creator<Integer>();
+        for(var i=0; i<num; ++i){
+            if(i%bi==0) printe(": ", i);
+            for(var j=0; j<max; ++j){
+                if(i%bi==0 && j%bj==0) printls(j);
+                var node = c.newNode(j, null, -1);
+                if(j>=l.size()) l.add(node);
+                else l.set(j, node);
+            }
+            if(i%bi==0) println();
         }
-        printLine();
     }
 }

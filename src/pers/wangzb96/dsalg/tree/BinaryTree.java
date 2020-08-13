@@ -10,7 +10,7 @@ import java.util.LinkedList;
  * @param <E> 元素泛型
  * @author wangzb96
  * @version 1.0
- * @date 2020年8月11日 14:52:45
+ * @date 2020年8月8日 12:00:00
  */
 public class BinaryTree<E> implements Tree<E>{
     public static final int NUM_CHILDREN = 2;
@@ -238,6 +238,7 @@ public class BinaryTree<E> implements Tree<E>{
                 this.num = num;
             }
         }
+
         var sb = new StringBuilder();
         var sk = new LinkedList<Elem>();
         sk.offerLast(new Elem(getRoot(), 0));

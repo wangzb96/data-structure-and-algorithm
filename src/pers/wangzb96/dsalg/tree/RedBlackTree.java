@@ -10,7 +10,7 @@ import java.util.LinkedList;
  * @param <E> 元素泛型
  * @author wangzb96
  * @version 1.0
- * @date 2020年8月11日 14:52:55
+ * @date 2020年8月8日 12:00:00
  */
 public class RedBlackTree<E> extends BinarySearchTree<E>{
     public static final boolean RED = false;
@@ -187,8 +187,7 @@ public class RedBlackTree<E> extends BinarySearchTree<E>{
         return validateRoot() && validateRed() && validateBlack();
     }
     protected boolean validateRoot(){
-        var root = (Node<E>)getRoot();
-        return root==null || root.isBlack();
+        return isNullOrBlack((Node<E>)getRoot());
     }
     protected boolean validateRed(){
         var q = new LinkedList<Node<E>>();
@@ -215,6 +214,7 @@ public class RedBlackTree<E> extends BinarySearchTree<E>{
                 this.num = num;
             }
         }
+
         var q = new LinkedList<Elem>();
         q.offerLast(new Elem((Node<E>)getRoot(), 0));
         var res = -1;

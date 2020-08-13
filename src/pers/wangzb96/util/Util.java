@@ -6,7 +6,7 @@ import java.util.Arrays;
  * 各种小工具
  * @author wangzb96
  * @version 1.0
- * @date 2020年8月11日 14:55:13
+ * @date 2020年8月1日 12:00:00
  */
 public interface Util{
     static void exit(int stat){
@@ -29,7 +29,17 @@ public interface Util{
             else if(obj instanceof short[] arr) str = Arrays.toString(arr);
             else if(obj instanceof byte[] arr) str = Arrays.toString(arr);
             else if(obj instanceof float[] arr) str = Arrays.toString(arr);
-            else str = Arrays.toString((Object[])obj);
+            else{
+                var arr = (Object[])obj;
+                var sb = new StringBuilder();
+                sb.append("[");
+                for(var i=0; i<arr.length; ++i){
+                    if(i>0) sb.append(", ");
+                    sb.append(toString(i));
+                }
+                sb.append("]");
+                str = sb.toString();
+            }
         }else str = obj.toString();
         return str;
     }

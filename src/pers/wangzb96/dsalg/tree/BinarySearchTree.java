@@ -7,7 +7,7 @@ import java.util.Comparator;
  * @param <E> 元素泛型
  * @author wangzb96
  * @version 1.0
- * @date 2020年8月11日 14:52:51
+ * @date 2020年8月8日 12:00:00
  */
 public class BinarySearchTree<E> extends BinaryTree<E>{
     private final Comparator<E> comparator;
@@ -76,7 +76,7 @@ public class BinarySearchTree<E> extends BinaryTree<E>{
         var node = search(elem);
         if(node==null || node.getElem()==null) return insert(newElem);
         if(newElem==null) return remove(node).getElem();
-        var tmp = getComparator().compare(newElem, elem);
+        var tmp = getComparator().compare(newElem, node.getElem());
         if(tmp==0){
             var oldElem = node.getElem();
             node.setElem(newElem);
