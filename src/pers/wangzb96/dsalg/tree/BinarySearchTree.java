@@ -201,6 +201,17 @@ public class BinarySearchTree<E> implements Tree<E>{
 
     protected Node<E> search(E elem){
         if(elem==null) return null;
+        var node = getRoot();
+        while(node!=null){
+            var tmp = getComparator().compare(elem, node.getElem());
+            if(tmp==0) return node;
+            else if(tmp<0) node = node.getLeft();
+            else node = node.getRight();
+        }
+        return null;
+    }
+    protected Node<E> searchNode(E elem){
+        if(elem==null) return null;
         var parent = getVRoot();
         var which = LEFT;
         var node = getRoot();
@@ -222,7 +233,7 @@ public class BinarySearchTree<E> implements Tree<E>{
     }
 
     /**
-     * 判断树非空
+     * 判断树是否非空
      * @return 非空：true；空：false
      */
     public boolean isNotEmpty(){
@@ -235,9 +246,7 @@ public class BinarySearchTree<E> implements Tree<E>{
      * @return 存在：true；不存在：false
      */
     public boolean has(E elem){
-        if(elem==null) return false;
-        var node = search(elem);
-        return node.getElem()!=null;
+        return search(elem)!=null;
     }
 
     /**
@@ -246,8 +255,8 @@ public class BinarySearchTree<E> implements Tree<E>{
      * @return 存在：获取的元素（内部的）；不存在：null
      */
     public E get(E elem){
-        if(elem==null) return null;
         var node = search(elem);
+        if(node==null) return null;
         return node.getElem();
     }
 
@@ -263,7 +272,7 @@ public class BinarySearchTree<E> implements Tree<E>{
      */
     public E set(E elem, E newElem){
         var node = search(elem);
-        if(node==null || node.getElem()==null) return insert(newElem);
+        if(node==null) return insert(newElem);
         if(newElem==null) return remove(node).getElem();
         var tmp = getComparator().compare(newElem, node.getElem());
         if(tmp==0){
@@ -282,14 +291,12 @@ public class BinarySearchTree<E> implements Tree<E>{
      * @return 不存在：null；存在：已存在的元素（内部的）
      */
     public E insert(E elem){
-        if(elem==null) return null;
-        var node = search(elem);
-        if(node.getElem()==null){
-            node.setElem(elem);
-            insert(node);
-            return null;
-        }
-        return node.getElem();
+        var node = searchNode(elem);
+        if(node==null) return null;
+        if(node.getElem()!=null) return node.getElem();
+        node.setElem(elem);
+        insert(node);
+        return null;
     }
     protected void insert(Node<E> node){
         node.linkParent();
@@ -301,10 +308,9 @@ public class BinarySearchTree<E> implements Tree<E>{
      * @return 存在：移除的元素（内部的）；不存在：null
      */
     public E remove(E elem){
-        if(elem==null) return null;
         var node = search(elem);
-        if(node.getElem()!=null) node = remove(node);
-        return node.getElem();
+        if(node==null) return null;
+        return remove(node).getElem();
     }
     protected Node<E> remove(Node<E> node){
         var num = node.numChildren();
@@ -332,6 +338,31 @@ public class BinarySearchTree<E> implements Tree<E>{
         return node;
     }
 
+    /**
+     * 判断树是否合法
+     * @return 合法：true；不合法：false
+     */
+    public boolean validate(){
+        var sk = new LinkedList<Node<E>>();
+        sk.offerLast(getRoot());
+        E elem = null;
+        while(!sk.isEmpty()){
+            var node = sk.peekLast();
+            if(node!=null){
+                sk.offerLast(node.getLeft());
+                continue;
+            }
+            sk.pollLast();
+            if(sk.isEmpty()) break;
+            node = sk.pollLast();
+            var tmp = node.getElem();
+            if(elem!=null && getComparator().compare(elem, tmp)>=0)
+                return false;
+            elem = tmp;
+            sk.offerLast(node.getRight());
+        }
+        return true;
+    }
 
     /**
      * 前序遍历

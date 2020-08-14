@@ -1,7 +1,6 @@
 package pers.wangzb96.test;
 
 import java.util.Random;
-import java.util.TreeMap;
 
 import pers.wangzb96.dsalg.tree.*;
 import static pers.wangzb96.util.Util.*;
@@ -12,80 +11,119 @@ import static pers.wangzb96.util.Util.*;
  * @version 1.0
  * @date 2020年8月8日 12:00:00
  */
+@FunctionalInterface
 public interface TestTree{
-    class TestBinarySearchTree{
-        public static void test(){
-            var bst = new BinarySearchTree<Integer>();
-            bst.insert(100);
-            bst.insert(50);
-            bst.insert(30);
-            bst.insert(20);
-            bst.insert(200);
-            bst.insert(300);
-            bst.insert(120);
-            bst.insert(150);
-            println(bst);
-            printLine();
+    void test(BinarySearchTree<Integer> bst, Integer elem);
 
-            println(bst.get(20), bst.set(300, 333), bst.insert(999), bst.remove(120));
-            printLine();
+    static long test(BinarySearchTree<Integer> bst, TestTree testTree,
+                     Random rd, int max, int num,
+                     boolean val, int batch, String name){
 
-            println(bst);
-            printLine();
+        long elap = 0;
+        for(var i=0; i<num; ++i){
+            var elem = rd.nextInt(max);
 
-            println(bst.preOrder());
-            println(bst.inOrder());
-            println(bst.postOrder());
-            printLine();
-        }
-    }
-    class TestRedBlackTree{
-        public static long test(int max, int num, double prob, double prob1,
-                                boolean val, int batch, boolean p){
-            final long SEED = 666;
-            var rd = new Random(SEED);
-            var rbt = new RedBlackTree<Integer>();
-            var start = getTimeMS();
-            for(var i=0; i<num; ++i){
-                var elem = rd.nextInt(max);
-                var prb = rd.nextDouble();
-                if(prb<prob) rbt.insert(elem);
-                else if(prb<prob1) rbt.remove(elem);
-                else rbt.get(elem);
-                if(val && (i<10 || i%batch==0) && !rbt.validate()){
-                    error("红黑树不合法！");
-                    exit();
-                }
+            var start = getTimeNS();
+            testTree.test(bst, elem);
+            elap += getTimeNS()-start;
+
+            if(val && (i<10 || i%batch==0) && !bst.validate()){
+                error("%s不合法！".formatted(name));
+                exit();
             }
-            var elap = getTimeMS()-start;
-            if(p) println(rbt);
-            return elap;
         }
-    }
-    class TestTreeMap{
-        @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection", "UnnecessaryLocalVariable"})
-        public static long test(int max, int num, double prob, double prob1){
-            var map = new TreeMap<Integer, Object>();
-            final long SEED = 666;
-            var rd = new Random(SEED);
-            var start = getTimeMS();
-            for(var i=0; i<num; ++i){
-                var elem = rd.nextInt(max);
-                var prb = rd.nextDouble();
-                if(prb<prob) map.put(elem, null);
-                else if(prb<prob1) map.remove(elem);
-                else map.get(elem);
-            }
-            var elap = getTimeMS()-start;
-            return elap;
-        }
+        return elap;
     }
 
     static void main(String[] args){
-        TestBinarySearchTree.test();
-        TestRedBlackTree.test(1_0000, 1_0000, 0.33, 0.66,
-                              true, 10, true);
+        var rd = new Random(666);
+        var max = 10000;
+        var num = 10000;
+        var val = true;
+        var batch = 100;
+        var name = "二叉查找树";
 
+        @SuppressWarnings("unchecked")
+        var trees = (BinarySearchTree<Integer>[])new BinarySearchTree[]{
+                new BinarySearchTree<Integer>(),  // 0.021 (S)
+                new RedBlackTree<Integer>(),  // 0.023 (S)
+                new AVLTree<Integer>(),
+        };
+        var bst = trees[2];
+        var elap = test(bst, BinarySearchTree::insert,
+                        rd, max, num, val, batch, name);
+        println(bst);
+        println("%.3f (S)".formatted(elap/1e9));
+        printLine();
+    }
+}
+//    static void testBinarySearchTree(){
+//        var bst = new BinarySearchTree<Integer>();
+//        bst.insert(100);
+//        bst.insert(50);
+//        bst.insert(30);
+//        bst.insert(20);
+//        bst.insert(200);
+//        bst.insert(300);
+//        bst.insert(120);
+//        bst.insert(150);
+//        println(bst);
+//        printLine();
+//
+//        println(bst.get(20), bst.set(300, 333), bst.insert(999), bst.remove(120));
+//        printLine();
+//
+//        println(bst);
+//        printLine();
+//
+//        println(bst.preOrder());
+//        println(bst.inOrder());
+//        println(bst.postOrder());
+//        printLine();
+//    }
+//    static void testRedBlackTree(int max, int num, double prob, double prob1,
+//                                 boolean val, int batch, boolean p){
+//        final long SEED = 666;
+//        var rd = new Random(SEED);
+//        var rbt = new RedBlackTree<Integer>();
+//        var start = getTimeMS();
+//        for(var i=0; i<num; ++i){
+//            var elem = rd.nextInt(max);
+//            var prb = rd.nextDouble();
+//            if(prb<prob) rbt.insert(elem);
+//            else if(prb<prob1) rbt.remove(elem);
+//            else rbt.get(elem);
+//            if(val && (i<10 || i%batch==0) && !rbt.validate()){
+//                error("红黑树不合法！");
+//                exit();
+//            }
+//        }
+//        var elap = getTimeMS()-start;
+//        if(p) println(rbt);
+//        return elap;
+//    }
+//    static void testAVLTree(){
+//
+//    }
+//    static void testTreeMap(int max, int num, double prob, double prob1){
+//
+//        var map = new TreeMap<Integer, Object>();
+//        final long SEED = 666;
+//        var rd = new Random(SEED);
+//        var start = getTimeMS();
+//        for(var i=0; i<num; ++i){
+//            var elem = rd.nextInt(max);
+//            var prb = rd.nextDouble();
+//            if(prb<prob) map.put(elem, null);
+//            else if(prb<prob1) map.remove(elem);
+//            else map.get(elem);
+//        }
+//        var elap = getTimeMS()-start;
+//        return elap;
+//    }
+//        TestBinarySearchTree.test();
+//        TestRedBlackTree.test(1_0000, 1_0000, 0.33, 0.66,
+//                              true, 10, true);
 //        var max = 10000*100;
 //        var num = 10000*1;
 //        var bi = num/100;
@@ -110,6 +148,12 @@ public interface TestTree{
 //                else l.set(j, node);
 //            }
 //            if(i%bi==0) println();
-    }
-}
+
+
+
+
+
+
+
+
 

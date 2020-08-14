@@ -28,11 +28,10 @@ public class RedBlackTree<E> extends BinarySearchTree<E>{
             }
         }
 
-        private boolean color;
+        private boolean color = RED;
 
         public Node(E elem, Node<E> parent, boolean which){
             super(elem, parent, which);
-            color = RED;
         }
 
         public boolean getColor(){
@@ -80,8 +79,8 @@ public class RedBlackTree<E> extends BinarySearchTree<E>{
     @Override
     protected void insert(BinarySearchTree.Node<E> bstNode){
         var node = (Node<E>)bstNode;
-
         node.linkParent();
+
         while(true){
             // node是根节点
             if(isRoot(node)){
@@ -119,7 +118,6 @@ public class RedBlackTree<E> extends BinarySearchTree<E>{
             grandParent.setColor(RED);
             parent.setColor(BLACK);
             uncle.setColor(BLACK);
-
             node = grandParent;
         }
     }
@@ -127,15 +125,13 @@ public class RedBlackTree<E> extends BinarySearchTree<E>{
     @Override
     protected Node<E> removeLeaf(BinarySearchTree.Node<E> bstNode){
         var node = (Node<E>)bstNode;
+        node.unlinkParent();
+        Node<E> ret = node;
 
         // node是红色的
-        if(node.isRed()){
-            node.unlinkParent();
-            return node;
-        }
+        if(node.isRed()) return ret;
 
         // node是黑色的
-        Node<E> ret = node;
         while(true){
             // node是根节点
             if(isRoot(node)) break;
@@ -161,8 +157,8 @@ public class RedBlackTree<E> extends BinarySearchTree<E>{
             if(nearNephew!=null && nearNephew.isRed() && isNullOrBlack(farNephew)){
                 brother.swapColor(nearNephew);
                 brother.rotate(another(which));
-                brother = (Node<E>)node.getBrother();
-                farNephew = (Node<E>)brother.getChild(another(which));
+                farNephew = brother;
+                brother = nearNephew;
             }
 
             // node的远侄子是红色的
@@ -182,19 +178,14 @@ public class RedBlackTree<E> extends BinarySearchTree<E>{
 
             // node的爸爸是黑色的
             brother.setColor(RED);
-
             node = parent;
         }
-        ret.unlinkParent();
         return ret;
     }
 
-    /**
-     * 判断红黑树是否合法
-     * @return 合法：true；不合法：false
-     */
+    @Override
     public boolean validate(){
-        return validateRoot() && validateRed() && validateBlack();
+        return super.validate() && validateRoot() && validateRed() && validateBlack();
     }
     protected boolean validateRoot(){
         return isNullOrBlack((Node<E>)getRoot());
