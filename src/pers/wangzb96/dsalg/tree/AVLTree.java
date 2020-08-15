@@ -13,11 +13,12 @@ import java.util.LinkedList;
  * @date 2020年8月14日 11:21:35
  */
 public class AVLTree<E> extends BinarySearchTree<E>{
-    public static final boolean INSERT = true;
-    public static final boolean REMOVE = false;
+    protected static <E> int getNodeHeight(Node<E> node){
+        if(node==null) return 0;
+        return node.getHeight();
+    }
 
     public static class Node<E> extends BinarySearchTree.Node<E>{
-
         public static class Creator<E> extends BinarySearchTree.Node.Creator<E>{
             @Override
             public Node<E> newNode(E elem, BinarySearchTree.Node<E> parent, boolean which){
@@ -25,30 +26,39 @@ public class AVLTree<E> extends BinarySearchTree<E>{
             }
         }
 
-        private int balanceFactor = 0;
+        private int height = 1;
 
         public Node(E elem, Node<E> parent, boolean which){
             super(elem, parent, which);
         }
 
-        public int getBalanceFactor(){
-            return balanceFactor;
+        public int getHeight(){
+            return height;
         }
-        public void setBalanceFactor(int balanceFactor){
-            this.balanceFactor = balanceFactor;
+        public void setHeight(int height){
+            this.height = height;
         }
 
-        public void updateBalanceFactor(boolean which, boolean how){
-            updateBalanceFactor(which, how, 1);
+        public int calculateHeight(){
+            var left = (Node<E>)getLeft();
+            var right = (Node<E>)getRight();
+            return Math.max(getNodeHeight(left), getNodeHeight(right))+1;
         }
-        public void updateBalanceFactor(boolean which, boolean how, int many){
-            var delta = which==how? 1: -1;
-            setBalanceFactor(getBalanceFactor()+delta*many);
+        public void updateHeight(){
+            setHeight(calculateHeight());
+        }
+
+        public int getBalanceFactor(){
+            var left = (Node<E>)getLeft();
+            var right = (Node<E>)getRight();
+            return getNodeHeight(right)-getNodeHeight(left);
         }
 
         @Override
         public String toString(){
-            return "%d %s".formatted(getBalanceFactor(), Util.toString(getElem()));
+            var balanceFactor = getBalanceFactor();
+            var str = balanceFactor==0? "0": balanceFactor<0? "L": "R";
+            return "%s %s".formatted(str, Util.toString(getElem()));
         }
     }
 
@@ -77,7 +87,7 @@ public class AVLTree<E> extends BinarySearchTree<E>{
             // node不是根节点
             var parent = (Node<E>)node.getParent();
             var which = node.getWhich();
-            parent.updateBalanceFactor(which, INSERT);
+            parent.updateHeight();
             var balanceFactor = parent.getBalanceFactor();
 
             // node的爸爸是完全平衡的，插入前是基本平衡的，高度未变
@@ -89,16 +99,16 @@ public class AVLTree<E> extends BinarySearchTree<E>{
                 if(node.getBalanceFactor()*balanceFactor<0){
                     // node的儿子一定存在
                     var child = (Node<E>)node.getChild(another(which));
-                    node.updateBalanceFactor(another(which), REMOVE);
-                    child.updateBalanceFactor(which, INSERT);
                     node.rotate(which);
+                    node.updateHeight();
+                    child.updateHeight();
                     node = child;
                 }
 
                 // node和node的爸爸在同一边失衡
-                parent.updateBalanceFactor(which, REMOVE, 2);
-                node.updateBalanceFactor(another(which), INSERT);
                 parent.rotate(another(which));
+                parent.updateHeight();
+                node.updateHeight();
                 break;
             }
 
@@ -120,7 +130,7 @@ public class AVLTree<E> extends BinarySearchTree<E>{
             // node不是根节点
             var parent = (Node<E>)node.getParent();
             var which = node.getWhich();
-            parent.updateBalanceFactor(which, REMOVE);
+            parent.updateHeight();
             var balanceFactor = parent.getBalanceFactor();
 
             // node的爸爸是基本平衡的，删除前是平衡的，高度未变
@@ -130,30 +140,31 @@ public class AVLTree<E> extends BinarySearchTree<E>{
             if(balanceFactor<-1 || balanceFactor>1){
                 // node的兄弟一定存在
                 var brother = (Node<E>)node.getBrother();
+                var brotherBalanceFactor = brother.getBalanceFactor();
 
                 // node的兄弟是平衡的
-                if(brother.getBalanceFactor()==0){
-                    parent.updateBalanceFactor(another(which), REMOVE);
-                    brother.updateBalanceFactor(which, INSERT);
+                if(brotherBalanceFactor==0){
                     parent.rotate(which);
+                    parent.updateHeight();
+                    brother.updateHeight();
                     break;
                 }
 
                 // node的兄弟是不平衡的
                 // node的兄弟和node的爸爸不在同一边失衡
-                if(brother.getBalanceFactor()*balanceFactor<0){
+                if(brotherBalanceFactor*balanceFactor<0){
                     // node的侄子一定存在
                     var nephew = (Node<E>)brother.getChild(which);
-                    brother.updateBalanceFactor(which, REMOVE);
-                    nephew.updateBalanceFactor(another(which), INSERT);
                     brother.rotate(another(which));
+                    brother.updateHeight();
+                    nephew.updateHeight();
                     brother = nephew;
                 }
 
                 // node的兄弟和node的爸爸在同一边失衡
-                parent.updateBalanceFactor(another(which), REMOVE, 2);
-                brother.updateBalanceFactor(which, INSERT);
                 parent.rotate(which);
+                parent.updateHeight();
+                brother.updateHeight();
                 parent = brother;
             }
 
@@ -165,40 +176,24 @@ public class AVLTree<E> extends BinarySearchTree<E>{
 
     @Override
     public boolean validate(){
-        return super.validate() && validateBalanceFactor() && validateBalance();
+        return super.validate() && validateHeight() && validateBalance();
     }
-    protected boolean validateBalanceFactor(){
-        class Elem{
-            public final Node<E> node;
-            public Elem left = null;
-            public Elem right = null;
-            public int height = 0;
-
-            public Elem(Node<E> node){
-                this.node = node;
-            }
-        }
-
-        var sk = new LinkedList<Elem>();
-        var sk1 = new LinkedList<Elem>();
-        sk.offerLast(new Elem((Node<E>)getRoot()));
+    protected boolean validateHeight(){
+        var sk = new LinkedList<Node<E>>();
+        var sk1 = new LinkedList<Node<E>>();
+        sk.offerLast((Node<E>)getRoot());
         while(!sk.isEmpty()){
-            var elem = sk.pollLast();
-            var node = elem.node;
+            var node = sk.pollLast();
             if(node==null) continue;
-            var left = new Elem((Node<E>)node.getLeft());
-            var right = new Elem((Node<E>)node.getRight());
-            elem.left = left;
-            elem.right = right;
-            sk1.offerLast(elem);
+            var left = (Node<E>)node.getLeft();
+            var right = (Node<E>)node.getRight();
+            sk1.offerLast(node);
             sk.offerLast(left);
             sk.offerLast(right);
         }
         while(!sk1.isEmpty()){
-            var elem = sk1.pollLast();
-            elem.height = Math.max(elem.left.height, elem.right.height)+1;
-            var balanceFactor = elem.left.height-elem.right.height;
-            if(balanceFactor!=elem.node.getBalanceFactor()) return false;
+            var node = sk1.pollLast();
+            if(node.calculateHeight()!=node.getHeight()) return false;
         }
         return true;
     }
