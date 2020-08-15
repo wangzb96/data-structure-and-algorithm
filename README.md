@@ -10,6 +10,8 @@ JDK14
 
 # 数据结构与算法
 
-- 红黑树
+- 二叉查找树 （Binary Search Tree）
+- 红黑树 （Red Black Tree）
+- AVL树 （AVL Tree）
 
 （开发中...）
