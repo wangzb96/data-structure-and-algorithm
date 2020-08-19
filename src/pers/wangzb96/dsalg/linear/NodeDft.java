@@ -7,8 +7,8 @@ package pers.wangzb96.dsalg.linear;
  * @date 2020年8月19日 17:23:23
  */
 public final class NodeDft<T> implements Node<T>{
-    private T item;
-    private Node<T> linked;
+    private T item = null;
+    private Node<T> linked = null;
 
     @Override
     public T getItem(){

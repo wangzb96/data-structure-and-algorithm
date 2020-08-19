@@ -7,4 +7,10 @@ package pers.wangzb96.dsalg.linear;
  * @date 2020年8月19日 13:16:22
  */
 public interface Array<T> extends Iterable<T>{
+
+
+
+
+
+
 }
