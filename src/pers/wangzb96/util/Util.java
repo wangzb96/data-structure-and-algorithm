@@ -3,7 +3,7 @@ package pers.wangzb96.util;
 import java.util.Arrays;
 
 /**
- * 各种小工具
+ * Util
  * @author wangzb96
  * @version 1.0
  * @date 2020年8月1日 12:00:00
