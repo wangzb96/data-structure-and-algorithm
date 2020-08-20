@@ -14,5 +14,10 @@ public interface Stack<T> extends SQH<T>{
     }
 
     @Override
+    default Stack<T> put(T item){
+        return push(item);
+    }
+
+    @Override
     Stack<T> push(T item);
 }

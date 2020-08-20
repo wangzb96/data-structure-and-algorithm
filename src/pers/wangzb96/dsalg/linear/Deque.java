@@ -16,21 +16,43 @@ public interface Deque<T>{
     T peekLeft();
     T peekRight();
 
-    T popLeft();
-    T popRight();
-
-    Deque<T> pushLeft(T item);
-    Deque<T> pushRight(T item);
-
     default T peek(boolean which){
         if(which==LEFT) return peekLeft();
         return peekRight();
     }
 
+    default T pickLeft(){
+        return popLeft();
+    }
+    default T pickRight(){
+        return popRight();
+    }
+
+    default T pick(boolean which){
+        return pop(which);
+    }
+
+    T popLeft();
+    T popRight();
+
     default T pop(boolean which){
         if(which==LEFT) return popLeft();
         return popRight();
     }
+
+    default Deque<T> putLeft(T item){
+        return pushLeft(item);
+    }
+    default Deque<T> putRight(T item){
+        return pushRight(item);
+    }
+
+    default Deque<T> put(boolean which, T item){
+        return push(which, item);
+    }
+
+    Deque<T> pushLeft(T item);
+    Deque<T> pushRight(T item);
 
     default Deque<T> push(boolean which, T item){
         if(which==LEFT) return pushLeft(item);

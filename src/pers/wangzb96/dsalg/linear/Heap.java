@@ -13,5 +13,10 @@ public interface Heap<T> extends SQH<T>{
     }
 
     @Override
+    default Heap<T> put(T item){
+        return push(item);
+    }
+
+    @Override
     Heap<T> push(T item);
 }

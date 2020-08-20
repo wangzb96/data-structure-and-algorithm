@@ -14,5 +14,10 @@ public interface Queue<T> extends SQH<T>{
     }
 
     @Override
+    default Queue<T> put(T item){
+        return push(item);
+    }
+
+    @Override
     Queue<T> push(T item);
 }
